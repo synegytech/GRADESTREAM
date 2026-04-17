@@ -1,71 +1,79 @@
 # GradeStream
 
 ## Overview
-**GradeStream** is a high-performance, web-based grading assistant designed specifically for university lecturers. It solves the tedious and error-prone process of manual grade entry by providing high-speed keyboard navigation, voice-to-text score entry, and automated Excel template injection. It ensures that raw scores are mapped perfectly to university-mandated templates without breaking formulas, headers, or formatting.
+**GradeStream** is a high-performance, web-based grading assistant designed specifically for university lecturers. It combines heavy-lifting data logic with a premium **"Digital Scholar"** UI/UX to create an intuitive and beautiful experience. 
+
+GradeStream eliminates the tedious and error-prone process of manual grade entry through:
+- ⚡ **High-speed keyboard navigation**
+- 🎙️ **Voice-to-text score entry**
+- 🤖 **Intelligent Excel mapping & Template preservation**
 
 ---
 
-## Priority 1: Core Automation & Logic
-**Status:** ✅ Available
-* **Benefit:** Eliminates mathematical errors and broken Excel formulas.
-* **Template Preservation Export:** Injects grades directly into the original Excel file, preserving all logos, headers, and styles while hard-coding final calculations to prevent coordinator formula errors.
-* **Smart-Mapper Logic:** Automatically parses uploaded `.xlsx` templates and maps "Anchor Columns" (Name, Matric No, CA1-3, Exam) to exact coordinates.
+## 🔥 Key Feature: The Intelligent Mapping Engine (v1.1.0)
+The v1.1.0 update introduces the **Scholar's Smart-Mapper**, specifically optimized for complex university scorecards (like **Veritas University**).
 
-## Rapid Input Systems
-**Status:** ✅ Available
-* **Benefit:** Eliminates the "scrolling search" for non-alphabetical script piles.
-* **Multi-Directional Entry:** Supports Horizontal, Vertical, and Diagonal (Script-to-Grid) keyboard navigation for rapid data entry.
-* **Smart Jump:** Instantly filter and jump to specific students using the last 3 digits of their Matric Number.
-
-## Advanced Assistant Tools
-* **Voice-to-Grid & Audio Confirmation:** ✅ Available
-  * **Benefit:** Truly hands-free grading for physical scripts.
-  * **Aural Loop (TTS):** Reads back confirmations (e.g., "Oti-ju, CA 1 set to 4.5. Next student is Emeka.") so lecturers don't have to look at the screen.
-* **OCR Mark Sheet Scan:** ❌ *Not yet available*
-  * **Planned:** Photo-to-Data conversion of handwritten rough sheets.
-* **A "Crosshair" Highlight System:** ⚠️ *Partially Available / Planned*
-  * **Current:** Features active cell highlighting.
-  * **Planned:** Full row/column crosshair highlighting for better visual tracking across wide spreadsheets.
-
-## Audit Dashboard Features
-**Status:** ✅ Available
-* Real-time validation of completion rates, missing scores, and maximum score limits (e.g., preventing a 6/5).
-* Instantly flags "ABS" (Absent) entries and ensures they are calculated as `0` but exported as "ABS".
+*   **Anchor Detection**: Automatically identifies the grading header row, skipping redundant logos and metadata columns.
+*   **Fuzzy Keyword Matching**: Intelligently pairs your Excel columns (e.g., "Theory CA1", "Subtotal", "Grade") to the GradeStream engine using academic synonym detection.
+*   **Deep Hierarchy Support**: Now captures Theory/Practical breakdowns, Projects, and Hands-on scores natively.
 
 ---
 
-## Technical Specifications
+## 🎨 Design Philosophy: "Digital Scholar"
+GradeStream is built on the **Digital Scholar** design system—a visual language that prioritizes focus, clarity, and professionalism.
 
-* **Frontend:** React 19, TypeScript, Tailwind CSS, Vite, Lucide React (Icons). Focuses on a highly responsive, fast, and accessible user experience.
-* **Backend:** Node.js, Express.js, Multer (Memory Storage for file uploads), ExcelJS (for non-destructive Excel template parsing and injection).
-* **Voice Engine:** Web Speech API (for Voice-to-Text and Text-to-Speech).
-* **OCR Engine:** ❌ *Not yet available* (Planned for future integration).
-* **Integrations:** ❌ *Not yet available* (Planned: Google Drive API for automated cloud backups and SMTP for direct "Email to Coordinator" functionality).
+- **Tonal Depth**: We use "surface-container" shifts instead of harsh borders to define information hierarchy, creating a cleaner, "No-Line" ledger look.
+- **Academic Typography**: Powered by **Manrope** (for headlines) and **Inter** (for UI), optimized for high-density spreadsheet legibility.
+- **Glassmorphism**: Contextual menus and sticky headers use frosted-glass blurs to maintain focus within deep data structures.
+- **HSL Harmony**: A curated palette of Deep Navy, Slate, and Lapis Blue ensures an experience that feels both technical and premium.
 
 ---
 
-## Development Roadmap
+## 🚀 Rapid Input Systems
+*   **Multi-Directional Entry**: Supports Horizontal, Vertical, and Diagonal (Script-to-Grid) keyboard navigation.
+*   **Smart Jump**: Instantly filter and jump to specific students using the last 3 digits of their Matric Number.
+*   **Aural Loop (TTS)**: The system reads back confirmations (e.g., "Oti-ju, CA 1 set to 4.5. Next student is Emeka.") so you never have to look away from your physical scripts.
+
+---
+
+## 🛠️ Reliability & Security
+*   **Non-Destructive Export**: Injects grades directly into your original file, preserving all original branding, formulas, and styles.
+*   **Bulletproof Binaries**: Optimized binary stream handling ensures `.xlsx` exports open instantly in Microsoft Excel without corruption warnings.
+*   **Audit Dashboard**: Real-time validation flags missing scores, duplicates, and values exceeding maximum limits.
+
+---
+
+## 💻 Technical Specifications
+
+*   **Frontend**: React 19, TypeScript, **Vite**, **Tailwind CSS v4**, Framer Motion.
+*   **Backend**: Node.js, Express.js, **ExcelJS** (High-precision spreadsheet engine).
+*   **API**: RESTful API for asynchronous template processing and binary stream generation.
+
+---
+
+## 🗺️ Development Roadmap
 
 | Phase | Milestone | Deliverable | Status |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **The Core Engine** | Excel parsing, Smart-Mapper, and non-destructive export. | ✅ Completed |
-| **Phase 2** | **Input Interfaces** | Multi-directional entry, Smart Jump, and active cell tracking. | ✅ Completed |
-| **Phase 3** | **The Auditor** | Real-time validation, missing score detection, and max score limits. | ✅ Completed |
-| **Phase 4** | **Assistant Layer (Voice)** | Voice-to-Grid entry, fuzzy matching, and Aural Loop (TTS). | ✅ Completed |
-| **Phase 5** | **Assistant Layer (OCR)** | OCR Mark Sheet Scan for handwritten rough sheets. | ⏳ Planned |
-| **Phase 6** | **Integrations** | Google Drive backups & SMTP Email to Coordinator. | ⏳ Planned |
+| **Phase 2** | **Stability Sprint** | Smart Row Detection, Format Reconciliation, and TS Integrity. | ✅ Completed |
+| **Phase 3** | **Design Maturity** | "Digital Scholar" UI, Tonal Architecture, and Manrope Integration. | ✅ Completed |
+| **Phase 4** | **Assistant Layer** | Voice-to-Grid, fuzzy mapping, and Aural Loop (TTS). | ✅ Completed |
+| **Phase 5** | **Cloud Layer** | Google Drive backups & SMTP Email to Coordinator. | ⏳ Planned |
+| **Phase 6** | **The Vision** | OCR Mark Sheet Scan for handwritten rough sheets. | ⏳ Planned |
 
 ---
 
-## Additional Considerations
+## 🛠️ Running Locally
 
-* **Offline Support:** Progressive Web App (PWA) capabilities to allow grading without an active internet connection are planned.
-* **LMS Integration:** Direct syncing with university Learning Management Systems (e.g., Moodle, Canvas) is planned to eliminate manual Excel uploads/downloads.
-* **Best Practices:** 
-  * Always run the **Audit** before exporting to catch any typos or missing scores. 
-  * Use a headset microphone in noisy staff rooms for optimal voice recognition accuracy.
-* **Contributions:** We welcome contributions! Please fork the repository, create a feature branch, and submit a pull request. Ensure all new features include robust error handling and maintain the strict "Preserve" logic for Excel exports.
+1. **Install Dependencies**: `npm install`
+2. **Start Dev Server**: `npm run dev`
+3. **Build Prod**: `npm run build`
 
-## Contact Information
-For questions, suggestions, or support, please reach out to:
+---
+
+## 📞 Contact & Contribution
+We welcome contributions! Please fork the repository and submit a pull request.
+
 **Email:** [synegytech@gmail.com](mailto:synegytech@gmail.com)
+**Project Lead:** SynegyTech Engineering

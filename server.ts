@@ -6,74 +6,132 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  exposedHeaders: ['Content-Disposition']
+}));
+app.use(express.json({ limit: '50mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Smart-Mapper Logic
+// Helper to load workbook regardless of format
+async function loadWorkbook(file: Express.Multer.File) {
+  const workbook = new ExcelJS.Workbook();
+  const isCsv = file.originalname.toLowerCase().endsWith('.csv');
+  
+  if (isCsv) {
+    // For CSV, read from buffer as string
+    await workbook.csv.readContents(file.buffer.toString());
+  } else {
+    // For XLSX, load from buffer
+    await workbook.xlsx.load(file.buffer);
+  }
+  return workbook;
+}
+
+// 1. Initial Upload -> Extract Preview Rows
 app.post('/api/upload', upload.single('file'), async (req, res) => {
+  console.log(`[API] Received upload request: ${req.file?.originalname}`);
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(req.file.buffer);
-    const worksheet = workbook.worksheets[0]; // Assume first sheet
+    const workbook = await loadWorkbook(req.file);
+    const worksheet = workbook.worksheets[0];
+
+    if (!worksheet) {
+      throw new Error('No worksheet found in file');
+    }
+
+    const previewRows: any[][] = [];
+    // Get first 20 rows for preview/header selection
+    worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      if (rowNumber <= 20) {
+        const rowData: any[] = [];
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          // Flatten cell values (might be objects for dates/formulas)
+          const val = cell.value;
+          if (val && typeof val === 'object' && 'result' in val) {
+            rowData.push(val.result);
+          } else if (val && typeof val === 'object' && 'text' in val) {
+             rowData.push(val.text);
+          } else {
+            rowData.push(val);
+          }
+        });
+        previewRows.push(rowData);
+      }
+    });
+
+    console.log(`[API] Extracted ${previewRows.length} preview rows`);
+    res.json({ 
+      previewRows, 
+      originalFile: req.file.buffer.toString('base64'),
+      filename: req.file.originalname 
+    });
+  } catch (error: any) {
+    console.error('[API ERROR] /api/upload:', error);
+    res.status(500).json({ error: `Failed to process file preview: ${error.message}` });
+  }
+});
+
+// 2. Confirm Mapping -> Extract Students based on Map
+app.post('/api/process', upload.single('file'), async (req, res) => {
+  console.log('[API] Processing file with mapping...');
+  if (!req.file) return res.status(400).json({ error: 'No file provided' });
+  
+  try {
+    const { mapping, headerRowIndex, dataStartRowIndex } = JSON.parse(req.body.data);
+    const workbook = await loadWorkbook(req.file);
+    const worksheet = workbook.worksheets[0];
 
     const students: any[] = [];
-    // Based on the prompt and template structure
-    const mapping = {
-      theoryCA1: 4, // D
-      theoryCA2: 5, // E
-      theoryCA3: 6, // F
-      practicalCA1: 8, // H
-      practicalCA2: 9, // I
-      practicalCA3: 10, // J
-      examTheory: 13, // M
-    };
-
-    // Scan from row 14 onwards
+    
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber >= 14) {
-        const sn = row.getCell(1).value;
-        const name = row.getCell(2).value;
-        const matricNo = row.getCell(3).value;
+      // Data usually starts right after headers or at a specific offset
+      if (rowNumber >= (dataStartRowIndex || (headerRowIndex + 2))) {
+        const student: any = {
+          sn: row.getCell(Number(mapping.sn) || 1).value,
+          name: row.getCell(Number(mapping.name) || 2).value?.toString() || '',
+          matricNo: row.getCell(Number(mapping.matricNo) || 3).value?.toString() || '',
+          rowNumber,
+          scores: {}
+        };
 
-        if (matricNo) {
-          students.push({
-            sn,
-            name: name?.toString() || '',
-            matricNo: matricNo.toString(),
-            rowNumber,
-            scores: {
-              theoryCA1: row.getCell(mapping.theoryCA1).value || '',
-              theoryCA2: row.getCell(mapping.theoryCA2).value || '',
-              theoryCA3: row.getCell(mapping.theoryCA3).value || '',
-              practicalCA1: row.getCell(mapping.practicalCA1).value || '',
-              practicalCA2: row.getCell(mapping.practicalCA2).value || '',
-              practicalCA3: row.getCell(mapping.practicalCA3).value || '',
-              examTheory: row.getCell(mapping.examTheory).value || '',
+        if (student.matricNo) {
+          const scoreKeys = [
+            'theoryCA1', 'theoryCA2', 'theoryCA3', 'theorySubtotal',
+            'practicalCA1', 'practicalCA2', 'practicalCA3', 'practicalSubtotal',
+            'caTotal', 'examTheory', 'project', 'handsOn', 
+            'examSubtotal', 'grandTotal', 'grade'
+          ];
+          
+          scoreKeys.forEach(key => {
+            if (mapping[key] !== undefined) {
+              const val = row.getCell(Number(mapping[key])).value;
+              // Extract result if it's a formula
+              const finalVal = (val && typeof val === 'object' && 'result' in val) ? val.result : val;
+              student.scores[key] = finalVal !== null && finalVal !== undefined ? finalVal : '';
             }
           });
+
+          students.push(student);
         }
       }
     });
 
+    console.log(`[API] Successfully processed ${students.length} students`);
     res.json({ students, mapping, originalFile: req.file.buffer.toString('base64') });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to process Excel file' });
+  } catch (error: any) {
+    console.error('[API ERROR] /api/process:', error);
+    res.status(500).json({ error: `Failed to extract data: ${error.message}` });
   }
 });
 
 // Audit Dashboard API
 app.post('/api/audit', (req, res) => {
   const { students } = req.body;
-  if (!students) {
-    return res.status(400).json({ error: 'No students data provided' });
-  }
+  if (!students) return res.status(400).json({ error: 'No students data provided' });
 
   let totalCells = 0;
   let filledCells = 0;
@@ -132,23 +190,18 @@ function calculateGrade(grandTotal: number, allAbs: boolean): string {
 
 // Final Export Sequence
 app.post('/api/export', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   try {
     const data = JSON.parse(req.body.data);
     const students = data.students;
     const mapping = data.mapping;
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(req.file.buffer);
+    const workbook = await loadWorkbook(req.file);
     const worksheet = workbook.worksheets[0];
 
-    // Strip all formulas from row 14 downwards to prevent "Shared Formula" corruption.
-    // This converts all formula clones to static values, fulfilling the "hard-coded" requirement.
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber >= 14) {
+      if (rowNumber >= (data.dataStartRowIndex || 14)) {
         row.eachCell({ includeEmpty: true }, (cell) => {
           if (cell.value && typeof cell.value === 'object' && ('formula' in cell.value || 'sharedFormula' in cell.value)) {
             cell.value = (cell.value as any).result !== undefined ? (cell.value as any).result : null;
@@ -160,11 +213,13 @@ app.post('/api/export', upload.single('file'), async (req, res) => {
     students.forEach((student: any) => {
       const row = worksheet.getRow(student.rowNumber);
       
-      const setCell = (col: number, val: any) => {
+      const setCell = (col: string | number, val: any) => {
+        if (!col) return;
+        const colNum = Number(col);
         if (val !== undefined && val !== null && val !== '') {
-          row.getCell(col).value = val === 'ABS' ? 'ABS' : Number(val);
+          row.getCell(colNum).value = val === 'ABS' ? 'ABS' : Number(val);
         } else {
-          row.getCell(col).value = null;
+          row.getCell(colNum).value = null;
         }
       };
 
@@ -176,52 +231,54 @@ app.post('/api/export', upload.single('file'), async (req, res) => {
       setCell(mapping.practicalCA3, student.scores.practicalCA3);
       setCell(mapping.examTheory, student.scores.examTheory);
 
-      // Calculate subtotals and totals
       const tCa1 = student.scores.theoryCA1 === 'ABS' ? 0 : (Number(student.scores.theoryCA1) || 0);
       const tCa2 = student.scores.theoryCA2 === 'ABS' ? 0 : (Number(student.scores.theoryCA2) || 0);
       const tCa3 = student.scores.theoryCA3 === 'ABS' ? 0 : (Number(student.scores.theoryCA3) || 0);
       const theorySubtotal = tCa1 + tCa2 + tCa3;
-      row.getCell(7).value = theorySubtotal; // G
+      if (mapping.theorySubtotal) row.getCell(Number(mapping.theorySubtotal)).value = theorySubtotal;
 
       const pCa1 = student.scores.practicalCA1 === 'ABS' ? 0 : (Number(student.scores.practicalCA1) || 0);
       const pCa2 = student.scores.practicalCA2 === 'ABS' ? 0 : (Number(student.scores.practicalCA2) || 0);
       const pCa3 = student.scores.practicalCA3 === 'ABS' ? 0 : (Number(student.scores.practicalCA3) || 0);
       const practicalSubtotal = pCa1 + pCa2 + pCa3;
-      row.getCell(11).value = practicalSubtotal; // K
+      if (mapping.practicalSubtotal) row.getCell(Number(mapping.practicalSubtotal)).value = practicalSubtotal;
 
       const caTotal = theorySubtotal + practicalSubtotal;
-      row.getCell(12).value = caTotal; // L
+      if (mapping.caTotal) row.getCell(Number(mapping.caTotal)).value = caTotal;
 
       const examTheory = student.scores.examTheory === 'ABS' ? 0 : (Number(student.scores.examTheory) || 0);
-      const project = Number(row.getCell(14).value) || 0; // N
-      const handsOn = Number(row.getCell(15).value) || 0; // O
+      const project = Number(row.getCell(mapping.project || 14).value) || 0;
+      const handsOn = Number(row.getCell(mapping.handsOn || 15).value) || 0;
       const examSubtotal = examTheory + project + handsOn;
-      row.getCell(16).value = examSubtotal; // P
+      if (mapping.examSubtotal) row.getCell(Number(mapping.examSubtotal)).value = examSubtotal;
 
       const grandTotal = caTotal + examSubtotal;
-      row.getCell(17).value = grandTotal; // Q
+      if (mapping.grandTotal) row.getCell(Number(mapping.grandTotal)).value = grandTotal;
 
-      // If all components are ABS, grade is ABS
       const allAbs = ['theoryCA1', 'theoryCA2', 'theoryCA3', 'practicalCA1', 'practicalCA2', 'practicalCA3', 'examTheory']
         .every(k => student.scores[k] === 'ABS' || student.scores[k] === undefined || student.scores[k] === null || student.scores[k] === '');
       
       const grade = calculateGrade(grandTotal, allAbs);
-
-      row.getCell(18).value = grade; // R
+      if (mapping.grade) row.getCell(Number(mapping.grade)).value = grade;
     });
 
-    const buffer = await workbook.xlsx.writeBuffer();
+    let safeBaseName = (req.file.originalname || 'GradeStream_Export').replace(/\.[^/.]+$/, "");
+    safeBaseName = safeBaseName.replace(/[^a-zA-Z0-9_\-\s]/g, "").trim() || "GradeStream_Output";
+    const safeFileName = `${safeBaseName}_Graded.xlsx`;
+
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=GradeStream_Export.xlsx');
-    res.send(buffer);
+    res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    
+    await workbook.xlsx.write(res);
+    res.end();
 
   } catch (error) {
-    console.error(error);
+    console.error('[API ERROR] /api/export:', error);
     res.status(500).json({ error: 'Failed to export Excel file' });
   }
 });
 
-// Vite middleware
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -232,22 +289,11 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
   }
 
   const PORT = 3000;
-  
-  // Global error handler to prevent HTML error pages
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Global error:', err);
-    res.status(500).json({ error: err.message || 'Internal Server Error' });
-  });
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://localhost:${PORT}`));
 }
 
 startServer();

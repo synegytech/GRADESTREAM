@@ -1,1 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --color-on-tertiary-fixed: #002113;
+  --color-primary: #00113a;
+  --color-on-primary-container: #758dd5;
+  --color-on-secondary-fixed: #0d1c2e;
+  --color-on-primary-fixed: #00174a;
+  --color-on-error-container: #93000a;
+  --color-error-container: #ffdad6;
+  --color-on-secondary-container: #57657a;
+  --color-surface-variant: #e0e3e5;
+  --color-on-background: #191c1e;
+  --color-surface-dim: #d8dadc;
+  --color-on-error: #ffffff;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d5e3fc;
+  --color-primary-container: #002366;
+  --color-on-primary-fixed-variant: #2a4386;
+  --color-primary-fixed: #dbe1ff;
+  --color-surface-container-low: #f2f4f6;
+  --color-secondary: #515f74;
+  --color-tertiary: #00180d;
+  --color-inverse-primary: #b3c5ff;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container: #eceef0;
+  --color-surface: #f7f9fb;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-background: #f7f9fb;
+  --color-on-primary: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-surface: #191c1e;
+  --color-on-tertiary-fixed-variant: #005236;
+  --color-inverse-on-surface: #eff1f3;
+  --color-inverse-surface: #2d3133;
+  --color-outline: #757682;
+  --color-error: #ba1a1a;
+  --color-outline-variant: #c5c6d2;
+  --color-secondary-fixed: #d5e3fc;
+  --color-surface-tint: #435b9f;
+  --color-on-surface-variant: #444650;
+  --color-surface-container-highest: #e0e3e5;
+  --color-secondary-fixed-dim: #b9c7df;
+  --color-on-secondary-fixed-variant: #3a485b;
+  --color-surface-container-high: #e6e8ea;
+  --color-surface-bright: #f7f9fb;
+  --color-tertiary-container: #002f1e;
+  --color-primary-fixed-dim: #b3c5ff;
+  --color-on-tertiary-container: #00a371;
+
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+
+  --font-headline: Manrope;
+  --font-body: Inter;
+  --font-label: Inter;
+  --font-sans: Inter;
+}
+
+/* Base custom styles from templates */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  text-transform: none !important;
+  display: inline-block;
+  line-height: 1;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+.academic-gradient {
+  background: linear-gradient(135deg, #00113a 0%, #002366 100%);
+}
+
+.grid-crosshair-row:hover { background-color: rgba(242, 244, 246, 0.8); }
+.grid-cell:focus-within { outline: 2px solid #00113a; outline-offset: -2px; background-color: #ffffff !important; }
+.abs-button { display: none; }
+.grid-cell:focus-within .abs-button { display: flex; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f2f4f6; }
+::-webkit-scrollbar-thumb { background: #c5c6d2; border-radius: 4px; }

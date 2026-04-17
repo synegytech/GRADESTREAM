@@ -421,80 +421,124 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container">
-      {/* Sidebar - hidden on mobile purely by convention, unless a hamburger menu is added later */}
+    <div className="min-h-screen h-screen overflow-hidden bg-surface flex text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container">
+      {/* Sidebar */}
       {!isMobile && (
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} completionRate={auditReport?.completionRate || 0} />
       )}
 
       {/* Main Content */}
-      <div className={`flex flex-col flex-1 w-full ${!isMobile ? 'ml-64' : ''}`}>
-        <TopNav
-          entryMode={entryMode}
-          setEntryMode={setEntryMode}
-          isListening={isListening}
-          toggleListening={toggleListening}
-          showGridControls={activeTab === 'Course Selection' && students.length > 0}
-          handleExport={students.length > 0 ? handleExport : undefined}
-        />
+      <div className={`flex flex-col flex-1 w-full ${!isMobile ? 'ml-64' : ''} h-full relative`}>
+        {(!isMobile || activeTab !== 'Course Selection') && (
+          <TopNav
+            entryMode={entryMode}
+            setEntryMode={setEntryMode}
+            isListening={isListening}
+            toggleListening={toggleListening}
+            showGridControls={activeTab === 'Course Selection' && students.length > 0}
+            handleExport={students.length > 0 ? handleExport : undefined}
+          />
+        )}
 
-        <main className="flex-1 overflow-auto">
-          {activeTab === 'Template Upload' && (
-            <TemplateUploadView
-              handleFileUpload={handleFileUpload}
-              previewRows={previewRows}
-              confirmMapping={confirmMapping}
-              isProcessing={isProcessing}
-            />
-          )}
+        <main className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex-1 overflow-auto custom-scrollbar">
+            {activeTab === 'Template Upload' && (
+              <TemplateUploadView
+                handleFileUpload={handleFileUpload}
+                previewRows={previewRows}
+                confirmMapping={confirmMapping}
+                isProcessing={isProcessing}
+              />
+            )}
 
-          {activeTab === 'Audit Dashboard' && (
-            students.length > 0 ? (
-              <AuditDashboardView students={students} auditReport={auditReport} runAudit={runAudit} />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-20 text-center h-[calc(100vh-80px)]">
-                <div className="material-symbols-outlined text-gray-300 text-6xl mb-4">folder_off</div>
-                <h2 className="text-xl font-bold text-gray-400">No Data Available</h2>
-                <p className="text-gray-400">Please upload a template first.</p>
-                <button onClick={() => setActiveTab('Template Upload')} className="mt-6 px-4 py-2 bg-primary text-white rounded-lg font-bold">Go to Upload</button>
-              </div>
-            )
-          )}
-
-          {activeTab === 'Course Selection' && (
-            students.length > 0 ? (
-              isMobile ? (
-                <MobileScriptFlipView
-                  students={filteredStudents}
-                  cols={cols}
-                  activeCell={activeCell}
-                  setActiveCell={setActiveCell}
-                  handleScoreChange={handleScoreChange}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  isListening={isListening}
-                  toggleListening={toggleListening}
-                  entryMode={entryMode}
-                  setEntryMode={setEntryMode}
-                />
+            {activeTab === 'Audit Dashboard' && (
+              students.length > 0 ? (
+                <AuditDashboardView students={students} auditReport={auditReport} runAudit={runAudit} />
               ) : (
-                <DesktopGridView
-                  students={filteredStudents}
-                  cols={cols}
-                  activeCell={activeCell}
-                  setActiveCell={setActiveCell}
-                  handleScoreChange={handleScoreChange}
-                  handleKeyDown={handleKeyDown}
-                />
+                <div className="flex flex-col items-center justify-center p-20 text-center h-full">
+                  <div className="material-symbols-outlined text-gray-300 text-6xl mb-4">folder_off</div>
+                  <h2 className="text-xl font-bold text-gray-400">No Data Available</h2>
+                  <p className="text-gray-400">Please upload a template first.</p>
+                  <button onClick={() => setActiveTab('Template Upload')} className="mt-6 px-4 py-2 bg-primary text-white rounded-lg font-bold">Go to Upload</button>
+                </div>
               )
-            ) : (
-              <div className="flex flex-col items-center justify-center p-20 text-center h-[calc(100vh-80px)]">
-                <div className="material-symbols-outlined text-gray-300 text-6xl mb-4">account_circle_off</div>
-                <h2 className="text-xl font-bold text-gray-400">No Course Loaded</h2>
-                <p className="text-gray-400">Upload a spreadsheet to view the grading grid.</p>
-                <button onClick={() => setActiveTab('Template Upload')} className="mt-6 px-4 py-2 bg-primary text-white rounded-lg font-bold">Go to Upload</button>
+            )}
+
+            {activeTab === 'Course Selection' && (
+              students.length > 0 ? (
+                isMobile ? (
+                  <MobileScriptFlipView
+                    students={filteredStudents}
+                    cols={cols}
+                    activeCell={activeCell}
+                    setActiveCell={setActiveCell}
+                    handleScoreChange={handleScoreChange}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    isListening={isListening}
+                    toggleListening={toggleListening}
+                    entryMode={entryMode}
+                    setEntryMode={setEntryMode}
+                    setActiveTab={setActiveTab}
+                  />
+                ) : (
+                  <DesktopGridView
+                    students={filteredStudents}
+                    cols={cols}
+                    activeCell={activeCell}
+                    setActiveCell={setActiveCell}
+                    handleScoreChange={handleScoreChange}
+                    handleKeyDown={handleKeyDown}
+                  />
+                )
+              ) : (
+                <div className="flex flex-col items-center justify-center p-20 text-center h-full">
+                  <div className="material-symbols-outlined text-gray-300 text-6xl mb-4">account_circle_off</div>
+                  <h2 className="text-xl font-bold text-gray-400">No Course Loaded</h2>
+                  <p className="text-gray-400">Upload a spreadsheet to view the grading grid.</p>
+                  <button onClick={() => setActiveTab('Template Upload')} className="mt-6 px-4 py-2 bg-primary text-white rounded-lg font-bold">Go to Upload</button>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* Sticky Footer Status Bar */}
+          {activeTab === 'Course Selection' && students.length > 0 && (
+            <footer className="bg-primary text-white px-8 py-2.5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest shrink-0 z-50">
+              <div className="flex gap-8">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-error animate-pulse' : 'bg-tertiary-fixed animate-pulse'}`}></span>
+                  <span>System Live: {isListening ? 'Listening via Voice' : 'Listening for input'}</span>
+                </div>
+                <div className="flex items-center gap-2 hidden sm:flex">
+                  <span className="text-white/60">Class Stats:</span>
+                  <span>Avg. 74.2%</span>
+                  <span>•</span>
+                  <span>Failing: 2</span>
+                </div>
               </div>
-            )
+              <div className="flex gap-4 items-center">
+                <div className="bg-white/10 px-3 py-1 rounded hidden sm:block">Autosave: Just now</div>
+                <div className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm !normal-case">wifi</span>
+                  <span>Synced</span>
+                </div>
+              </div>
+            </footer>
+          )}
+
+          {/* Contextual Info Floating Card */}
+          {activeTab === 'Course Selection' && students.length > 0 && !isMobile && (
+            <div className="fixed bottom-16 right-12 w-64 bg-surface-container-lowest/80 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-white/20 transform rotate-2 hover:rotate-0 transition-transform pointer-events-none z-50">
+              <h4 className="font-headline font-extrabold text-primary mb-2 text-sm">Grading Protocol</h4>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-medium normal-case">
+                  Please ensure all CA marks are normalized to the 5% weighting as per the department board's directives for 400-level courses.
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-tertiary-container font-black">
+                <span className="material-symbols-outlined text-sm !normal-case" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Template Verified</span>
+              </div>
+            </div>
           )}
         </main>
       </div>

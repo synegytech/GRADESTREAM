@@ -18,15 +18,15 @@ export default function Sidebar({ activeTab, setActiveTab, completionRate = 0 }:
   const strokeDashoffset = 251.2 - (251.2 * completionRate) / 100;
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-surface-container-low flex flex-col py-6 z-50">
-      <div className="px-6 mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
-            <span className="material-symbols-outlined text-lg bg-transparent">auto_stories</span>
-          </div>
-          <span className="text-lg font-black text-primary">GradeStream</span>
+    <aside className="fixed left-0 top-0 h-full flex flex-col py-8 px-4 bg-surface-container-low w-64 border-r-0 font-manrope text-base font-medium z-50">
+      <div className="flex items-center gap-3 mb-10 px-2">
+        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
         </div>
-        <p className="font-headline uppercase tracking-widest text-[10px] font-bold text-secondary">The Digital Scholar</p>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">GradeStream</h1>
+          <p className="text-xs text-secondary opacity-70 uppercase tracking-widest font-bold">The Digital Scholar</p>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -36,31 +36,26 @@ export default function Sidebar({ activeTab, setActiveTab, completionRate = 0 }:
             <div
               key={tab.label}
               onClick={() => setActiveTab(tab.label)}
-              className={`px-4 py-3 cursor-pointer flex items-center gap-3 font-headline transition-all ${
+              className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors duration-200 rounded-xl ${
                 isActive
-                  ? 'bg-surface-container-lowest text-primary rounded-l-xl shadow-sm ml-4'
-                  : 'text-secondary hover:bg-surface-container/50'
+                  ? 'text-primary font-bold bg-white shadow-sm'
+                  : 'text-secondary hover:text-primary hover:bg-white/50'
               }`}
             >
-              <span
-                className="material-symbols-outlined !normal-case"
-                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-              >
-                {tab.icon}
-              </span>
-              <span className="uppercase tracking-wider text-[11px] font-bold">{tab.label}</span>
+              <span className="material-symbols-outlined !normal-case">{tab.icon}</span>
+              <span>{tab.label}</span>
             </div>
           );
         })}
       </nav>
 
       {/* Progress Widget (Shown conditionally when grading data is loaded) */}
-      <div className={`mx-4 my-6 p-4 bg-surface-container-lowest/40 rounded-xl transition-opacity ${completionRate > 0 ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`mx-2 my-6 p-4 bg-white rounded-xl shadow-sm transition-opacity ${completionRate > 0 ? 'opacity-100' : 'opacity-0'}`}>
         <p className="font-headline uppercase tracking-wider text-[10px] font-bold text-secondary mb-4">Grading Progress</p>
         <div className="relative w-24 h-24 mx-auto">
           <svg className="w-full h-full transform -rotate-90">
             <circle
-              className="text-surface-container-high"
+              className="text-surface-container"
               cx="48"
               cy="48"
               fill="transparent"
@@ -87,14 +82,18 @@ export default function Sidebar({ activeTab, setActiveTab, completionRate = 0 }:
         </div>
       </div>
 
-      <div className="mt-auto pt-6 px-4 space-y-1">
-        <div className="text-secondary px-4 py-3 hover:bg-surface-container/50 transition-all cursor-pointer flex items-center gap-3 font-headline">
-          <span className="material-symbols-outlined !normal-case">help</span>
-          <span className="uppercase tracking-wider text-[11px] font-bold">Help Center</span>
+      <div className="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
+        <button className="w-full mb-4 py-3 px-4 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+          <span className="material-symbols-outlined !normal-case">add</span>
+          <span className="text-sm">New Grading Session</span>
+        </button>
+        <div className="flex items-center gap-3 px-4 py-2 text-secondary hover:text-primary rounded-lg cursor-pointer transition-colors">
+          <span className="material-symbols-outlined !normal-case text-lg">settings</span>
+          <span className="text-sm font-medium">Settings</span>
         </div>
-        <div className="text-secondary px-4 py-3 hover:bg-surface-container/50 transition-all cursor-pointer flex items-center gap-3 font-headline">
-          <span className="material-symbols-outlined !normal-case">logout</span>
-          <span className="uppercase tracking-wider text-[11px] font-bold">Logout</span>
+        <div className="flex items-center gap-3 px-4 py-2 text-secondary hover:text-primary rounded-lg cursor-pointer transition-colors">
+          <span className="material-symbols-outlined !normal-case text-lg">help</span>
+          <span className="text-sm font-medium">Support</span>
         </div>
       </div>
     </aside>

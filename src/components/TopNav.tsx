@@ -19,101 +19,75 @@ export default function TopNav({
   handleExport,
 }: TopNavProps) {
   return (
-    <header className="bg-surface sticky top-0 z-40 w-full px-6 py-3 flex justify-between items-center bg-opacity-90 backdrop-blur-md">
-      <div className="flex items-center gap-8">
-        <div className="flex items-center gap-2">
-          <span className="text-secondary font-headline text-sm font-medium">Course:</span>
-          <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold font-headline tracking-wide uppercase">
-            VUA-SEN 103
-          </span>
-        </div>
-
-        {/* Entry Direction Toggle */}
-        {showGridControls && setEntryMode && (
-          <div className="flex items-center bg-surface-container rounded-lg p-1">
-            <button
-              onClick={() => setEntryMode('horizontal')}
-              className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-2 transition-all ${
-                entryMode === 'horizontal' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high font-medium'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">arrow_right_alt</span>
-              <span>Horizontal</span>
-            </button>
-            <button
-              onClick={() => setEntryMode('vertical')}
-              className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-2 transition-all ${
-                entryMode === 'vertical' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high font-medium'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
-              <span>Vertical</span>
-            </button>
-            <button
-              onClick={() => setEntryMode('diagonal')}
-              className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-2 transition-all ${
-                entryMode === 'diagonal' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high font-medium'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">south_east</span>
-              <span>Diagonal</span>
-            </button>
+    <>
+      <header className="flex items-center justify-between w-full pl-8 lg:pl-72 pr-8 h-20 bg-surface font-headline font-semibold fixed top-0 right-0 z-40 shadow-sm shadow-black/5">
+        <div className="flex items-center gap-6 flex-1">
+           <div className="relative w-full max-w-md hidden md:block">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+            <input className="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search students, IDs, or courses..." type="text"/>
           </div>
-        )}
-      </div>
-
-      <div className="flex items-center gap-6">
-        {showGridControls && toggleListening && (
-          <div className="relative flex items-center justify-center group cursor-pointer" onClick={toggleListening}>
-            {isListening && <div className="absolute w-10 h-10 bg-error/20 rounded-full animate-ping"></div>}
-            <span
-              className={`material-symbols-outlined relative z-10 p-2 rounded-full transition-colors ${
-                isListening ? 'text-error bg-error-container/40' : 'text-secondary hover:bg-surface-container'
-              }`}
-            >
-              mic
-            </span>
-            <span className="absolute top-12 left-1/2 -translate-x-1/2 bg-on-background text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-              {isListening ? 'Voice Input Active' : 'Enable Voice Input'}
-            </span>
-          </div>
-        )}
-
-        {handleExport && (
-          <button 
-            onClick={handleExport}
-            className="flex items-center gap-2 academic-gradient text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mr-4"
-          >
-            <span className="material-symbols-outlined text-lg">download</span>
-            <span>Export Grade Sheet</span>
-          </button>
-        )}
-
-        <div className="flex items-center gap-4 border-l border-outline-variant/10 pl-8">
-          <div className="relative group cursor-pointer">
-            <span className="material-symbols-outlined text-secondary hover:bg-surface-container-low p-2 rounded-full transition-colors !normal-case">
-              notifications
-            </span>
-            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface pointer-events-none"></span>
-          </div>
-          <span className="material-symbols-outlined text-secondary cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-colors !normal-case">
-            settings
-          </span>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-primary">Dr. Julian Thorne</p>
-              <p className="text-[10px] text-secondary font-medium uppercase tracking-tighter">Senior Lecturer</p>
-            </div>
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-surface-container-lowest shadow-sm cursor-pointer active:scale-95 transition-transform">
-              <img
-                alt="Lecturer profile photo"
-                className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfFOcI4VH0EqUX2XOnAHJun1MEPRu4fMEdEH6mqF0ImIgv4vs2CFvldRufAO4oS0V5tqqIvT6ejS47BcCD6XUa8OL4MMPxoWonLjqwhxMXHBENO9dfA4rA6Sd2QbpjeSeQaOTMsLksCzM5J__aNzuvY7hsiyr0IhGfWxFRKqw6Kv2zDdCaYcUOK0UQPkGph4y3TuDCpSafzdJ1s5d1UbHHDiqxV68WKf6M9Dmt59yJOU9mDBnyBg6AZsuY4ZJhA5lJIH8X-NgXMJY"
-              />
-            </div>
+          <div className="h-6 w-[1px] bg-outline-variant/30 hidden md:block"></div>
+          <div className="flex items-center gap-2 text-primary">
+            <span className="text-xs uppercase tracking-widest text-secondary font-bold">Course:</span>
+            <span className="text-sm">CSC 402 - Advanced Algorithms</span>
           </div>
         </div>
-      </div>
-    </header>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 bg-surface-container-highest/50 p-1 rounded-full">
+            <button className="p-2 hover:bg-white rounded-full transition-all text-secondary flex items-center justify-center"><span className="material-symbols-outlined !normal-case text-[20px]">notifications</span></button>
+            <button className="p-2 hover:bg-white rounded-full transition-all text-secondary flex items-center justify-center"><span className="material-symbols-outlined !normal-case text-[20px]">help_outline</span></button>
+          </div>
+          <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/30 hidden sm:flex">
+            <div className="text-right">
+              <p className="text-sm font-bold text-primary leading-none">Dr. Alistair Vance</p>
+              <p className="text-[10px] text-secondary">Senior Lecturer</p>
+            </div>
+            <img className="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-white" alt="Lecturer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLpm7TPlIi1gqW5b-cuE75rNNufMsAqwPvJahO63gv5mI2maJ0jnRw8H9yftPkw8TKlQNgmLAHDlEPgBydJPvOQHP51TjqHYvS-hoWsoy1muyGVOO9OCb8Ix-f0fCGH7oJhmN-48acEkoEOXskNrI_PRzylUIdMEkPdQ6__58Lr9Da6kKH80L8QQtCj3dEgV_qp5yB8P2TvDFG99slTo1rHjHTNPfFtQ0m_g4Co83fbZivDX53RYxXa2WskI_cSVg0SUoqQyyChG4"/>
+          </div>
+        </div>
+      </header>
+
+      {/* spacer to prevent content from going under the fixed header */}
+      <div className="h-20 w-full shrink-0"></div>
+
+      {/* Grid Controls Bar */}
+      {showGridControls && (
+        <div className="px-8 py-4 flex items-center justify-between bg-white/50 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-headline font-extrabold text-primary tracking-tight">Grade Entry Terminal</h2>
+            {setEntryMode && entryMode && (
+              <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full">
+                <span className="text-[10px] font-bold text-secondary uppercase tracking-wider hidden sm:block">Entry Direction:</span>
+                <div className="flex gap-1">
+                  <button onClick={() => setEntryMode('horizontal')} className={`px-3 py-1 text-[10px] font-bold rounded-full transition-all ${entryMode === 'horizontal' ? 'bg-primary text-white' : 'text-secondary hover:bg-white'}`}>Horizontal</button>
+                  <button onClick={() => setEntryMode('vertical')} className={`px-3 py-1 text-[10px] font-bold rounded-full transition-all ${entryMode === 'vertical' ? 'bg-primary text-white' : 'text-secondary hover:bg-white'}`}>Vertical</button>
+                  <button onClick={() => setEntryMode('diagonal')} className={`px-3 py-1 text-[10px] font-bold rounded-full transition-all ${entryMode === 'diagonal' ? 'bg-primary text-white' : 'text-secondary hover:bg-white'}`}>Diagonal</button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-6">
+            {toggleListening && (
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-secondary hidden sm:block">Voice-to-Grid</span>
+                <div className="relative flex items-center justify-center cursor-pointer" onClick={toggleListening}>
+                  {isListening && <div className="absolute w-10 h-10 bg-error/20 rounded-full animate-ping"></div>}
+                  <button className={`relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all ${isListening ? 'bg-error text-white scale-105' : 'bg-surface-container-highest text-secondary hover:bg-white'}`}>
+                    <span className="material-symbols-outlined !normal-case" style={{ fontVariationSettings: isListening ? "'FILL' 1" : "'FILL' 0" }}>mic</span>
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {handleExport && (
+              <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-tertiary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md">
+                <span className="material-symbols-outlined !normal-case">save</span>
+                <span className="hidden sm:inline">Finalize Grades</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
